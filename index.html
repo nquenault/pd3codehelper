@@ -1,1 +1,191 @@
-ok
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Door Code Helper for PAYDAY 3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/nquenault/pd3codehelper/main/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/nquenault/pd3codehelper/main/favicon.ico">
+<!--
+    Source #1 : https://www.reddit.com/r/paydaytheheist/comments/15jvvpq/payday_3_beta_vault_code_generator_from/
+    Source #2 : https://www.onlinegdb.com/jMsyIVl33
+-->
+    <style>
+    *:not([type="text"]) {
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    html, body, input, textarea, select, button, dialog {
+        background-color: #181a1b !important;
+    }
+
+    html, body, input, textarea, select, button {
+        border-color: #736b5e;
+        color: #e8e6e3;
+    }
+
+    [type="text"] {
+        text-align: center;
+    }
+
+    [type="checkbox"] {
+        vertical-align: bottom;
+    }
+
+    [type="checkbox"], label, a {
+        cursor: pointer;
+    }
+    </style>
+</head>
+<body style="text-align: center;">
+    <h2>Door Code Helper for PAYDAY 3</h2>
+    <p>Fingerprints (e.g. 257 ou 2480) :</p>
+    <div style="margin-bottom: 50px;">
+        <input type="text" id="fpi" style="width: 50px;" value="" />
+        <button onclick="generateCombinations()">Start to list codes</button>
+        <div style="margin-top: 5px;">
+            <input type="checkbox" id="rnd" chec*ked="checked" />
+            <label for="rnd">Randomize codes order</label>
+        </div>
+    </div>
+    <div id="state"></div>
+    <div id="cmrt" style="display: none;">Max remaining time : <span id="mrt"></span></div>
+    <div id="pr" style="display: none;"><input type="checkbox" id="pause" /> <label for="pause">Pause</label></div>
+    <div id="result" style="font-size: 125px;"></div>
+    <div><span id="timeout"></span><span id="skdt"></span></div>
+    <hr style="margin: 25px 0px 10px;" />
+    <div id="cbs">
+        <input type="button" id="cb_green" style="color: #72ff72" value="Green" />
+        <input type="button" id="cb_blue" style="color: #337dff" value="Blue" />
+        <input type="button" id="cb_white" style="color: #e8e6e3" value="White" />
+        <input type="button" id="cb_red" style="color: #ff1a1a" value="Red" />
+        <input type="button" id="cb_reset" style="color: #988f81" value="Reset" />
+    </div>
+    <div>
+        <input type="text" id="cbl" value="" style="width: 200px;" />
+        <input type="button" id="bcpy" value="Copy" />
+    </div>
+
+    <script>
+    const timeout = 30; // seconds, 25sec recovery
+    var hi, ht;
+
+    function $(o) { return document.getElementById(o); }
+    function _tA(v) { return v instanceof Array ? v : v.split(/\s+/); }
+    function html(o, v) { _tA(o).forEach(so => $(so).innerHTML = v); }
+    function css(o, n, v) { _tA(o).forEach(so => $(so).style[n] = v); }
+    function ucfirst(s) { return s[0].toUpperCase()+s.slice(1).toLowerCase(); }
+    function append(o, s) { $(o).insertAdjacentHTML('beforeend', s); }
+
+    _tA('green blue white red reset').forEach(c => {
+        $('cb_'+c).onclick = c == 'reset' ?
+            function() { $('cbl').value = ''; } :
+            function() { $('cbl').value = ($('cbl').value+' '+this.value).trim(); };
+    });
+
+    $('bcpy').onclick = function() {
+        $('cbl').select();
+        $('cbl').setSelectionRange(0, 99999);
+        navigator.clipboard.writeText($('cbl').value);
+    };
+
+    function generateCombinations()
+    {
+        css('cmrt pr', 'display', 'block');
+        html('skdt', ' (<a href="javascript:void(0)" id="bsk">skip</a>)');
+
+        const fingerprints = Array.from($("fpi").value)
+            .map(Number)
+            .slice(0, 4)
+            .filter((v, i, a) => a.indexOf(v) === i)
+        ;
+
+        const combinations = getCombinations(fingerprints, 4);
+        const filtered = combinations.filter(c => new Set(c).size === fingerprints.length);
+        filtered.sort($('rnd').checked ? (() => Math.random() - 0.5) :  undefined);
+
+        showNext(filtered);
+    }
+
+    function sf(t)
+    {
+        let m = Math.floor(t / 60);
+        let rs = t - (m * 60);
+
+        return (m ? m+'m ' : '')+(rs ? rs+'s' : '');
+    }
+
+    function showNext(c, i = 0)
+    {
+        var cs = 0;
+
+        html('state', 'Code '+(i + 1)+' / '+c.length+' ('+Math.round(1 / (c.length - i) * 100)+'% probability)');
+        html('mrt', sf((c.length - i) * timeout - cs));
+        html('result', c[i].join(' '));
+        html('timeout', sf(timeout));
+
+        clearInterval(hi);
+        hi = setInterval(function() {
+            if($('pause').checked)
+            return;
+
+            html('mrt', sf(c.length * timeout - i * timeout - ++cs));
+            html('timeout', sf(timeout - cs));
+        }, 1000);
+
+        let dn = function() {
+            clearTimeout(ht);
+            clearInterval(hi);
+
+            if(++i == c.length)
+            {
+                css('cmrt pr', 'display', 'none');                
+                html('state result timeout skdt', '');
+            }
+            else
+            showNext(c, i);
+        };
+
+        $('pause').onchange = function() {
+            if($('pause').checked)
+            clearTimeout(ht);
+            else
+            ht = setTimeout(dn, (timeout - cs) * 1000);        
+        };
+
+        $('bsk').onclick = dn;
+
+        clearTimeout(ht);
+        ht = setTimeout(dn, timeout * 1000);
+    }
+
+    function getCombinations(arr, repeat)
+    {
+        const result = [];
+
+        const generate = (current, index) =>
+        {
+            if(index === repeat)
+            {
+                result.push([...current]);
+                return;
+            }
+
+            for(let i = 0;i<arr.length;i++)
+            {
+                current.push(arr[i]);
+                generate(current, index + 1);
+                current.pop();
+            }
+        };
+
+        generate([], 0);
+
+        return result;
+    }
+
+    </script>
+</body>
+</html>
