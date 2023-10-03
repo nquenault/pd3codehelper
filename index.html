@@ -86,23 +86,22 @@
 
     function $(o) { return document.getElementById(o); }
     function _tA(v) { return v instanceof Array ? v : v.split(/\s+/); }
-    function html(o, v) { _tA(o).forEach(so => $(so).innerHTML = v); }
+    function html(o, v) { return v === undefined ? $(o).innerHTML : _tA(o).forEach(so => $(so).innerHTML = v); }
     function css(o, n, v) { _tA(o).forEach(so => $(so).style[n] = v); }
     function ucfirst(s) { return s[0].toUpperCase()+s.slice(1).toLowerCase(); }
     function append(o, s) { $(o).insertAdjacentHTML('beforeend', s); }
     function rand(max, min = 0) { return Math.round(Math.random() * (max - min) + min); }
     function randItem(v) { v = _tA(v); return v[Math.floor(Math.random() * v.length)]; }
-    function randBool() { return !!rand(1); }
 
     _tA('green blue white red reset').forEach(c => {
         append('cbs', '<input type="button" id="cb_'+c+'" style="color: '+colors[c]+';" value="'+ucfirst(c)+'" /> ');
         $('cb_'+c).onclick = c == 'reset' ?
             function() { html('cbl', ''); } :
-            function() { html('cbl', ($('cbl').innerHTML+' <span style="color: '+this.value.toLowerCase()+';">'+this.value+'</span>').trim()); };
+            function() { html('cbl', (html('cbl')+' <span style="color: '+this.value.toLowerCase()+';">'+this.value+'</span>').trim()); };
     });
 
     $('bcpy').onclick = function() {      
-        navigator.clipboard.writeText($('cbl').innerHTML.replace(/<[^>]*>/g, ''));
+        navigator.clipboard.writeText(html('cbl').replace(/<[^>]*>/g, ''));
     };
 
     function generateCombinations()
