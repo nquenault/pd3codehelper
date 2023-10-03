@@ -77,7 +77,7 @@
     const timeout = 30; // seconds, 25sec recovery
     const colors = {
         green: '#72ff72',
-        blue: '#337dff',
+        blue: '#669fff', // #337dff <= too dark imo
         white: '#e8e6e3',
         red: '#ff1a1a',
         reset: '#988f81'
@@ -97,7 +97,7 @@
         append('cbs', '<input type="button" id="cb_'+c+'" style="color: '+colors[c]+';" value="'+ucfirst(c)+'" /> ');
         $('cb_'+c).onclick = c == 'reset' ?
             function() { html('cbl', ''); } :
-            function() { html('cbl', (html('cbl')+' <span style="color: '+this.value.toLowerCase()+';">'+this.value+'</span>').trim()); };
+            function() { html('cbl', (html('cbl')+' <span style="color: '+colors[this.value.toLowerCase()]+';">'+this.value+'</span>').trim()); };
     });
 
     $('bcpy').onclick = function() {      
