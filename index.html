@@ -7,6 +7,8 @@
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/nquenault/pd3codehelper/main/favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/nquenault/pd3codehelper/main/favicon.ico">
 <!--
+    GitHub Repo : https://github.com/nquenault/pd3codehelper
+    GitHub Page : https://nquenault.github.io/pd3codehelper
     Source #1 : https://www.reddit.com/r/paydaytheheist/comments/15jvvpq/payday_3_beta_vault_code_generator_from/
     Source #2 : https://www.onlinegdb.com/jMsyIVl33
 -->
@@ -104,7 +106,7 @@
 
         const combinations = getCombinations(fingerprints, 4);
         const filtered = combinations.filter(c => new Set(c).size === fingerprints.length);
-        filtered.sort($('rnd').checked ? (() => Math.random() - 0.5) :  undefined);
+        filtered.sort($('rnd').checked ? (() => Math.random() - 0.5) : undefined);
 
         showNext(filtered);
     }
