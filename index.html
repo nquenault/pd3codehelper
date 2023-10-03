@@ -62,15 +62,9 @@
     <div id="result" style="font-size: 125px;"></div>
     <div><span id="timeout"></span><span id="skdt"></span></div>
     <hr />
-    <div id="cbs">
-        <input type="button" id="cb_green" style="color: #72ff72" value="Green" />
-        <input type="button" id="cb_blue" style="color: #337dff" value="Blue" />
-        <input type="button" id="cb_white" style="color: #e8e6e3" value="White" />
-        <input type="button" id="cb_red" style="color: #ff1a1a" value="Red" />
-        <input type="button" id="cb_reset" style="color: #988f81" value="Reset" />
-    </div>
+    <div id="cbs"></div>
     <div>
-        <input type="text" id="cbl" value="" style="width: 200px;" />
+        <span id="cbl" style="display: inline-block; width: 200px;"></span>
         <input type="button" id="bcpy" value="Copy" />
     </div>
     <hr />
@@ -81,6 +75,13 @@
 
     <script>
     const timeout = 30; // seconds, 25sec recovery
+    const colors = {
+        green: '#72ff72',
+        blue: '#337dff',
+        white: '#e8e6e3',
+        red: '#ff1a1a',
+        reset: '#988f81'
+    };
     var hi, ht;
 
     function $(o) { return document.getElementById(o); }
@@ -94,15 +95,14 @@
     function randBool() { return !!rand(1); }
 
     _tA('green blue white red reset').forEach(c => {
+        append('cbs', '<input type="button" id="cb_'+c+'" style="color: '+colors[c]+';" value="'+ucfirst(c)+'" /> ');
         $('cb_'+c).onclick = c == 'reset' ?
-            function() { $('cbl').value = ''; } :
-            function() { $('cbl').value = ($('cbl').value+' '+this.value).trim(); };
+            function() { html('cbl', ''); } :
+            function() { html('cbl', ($('cbl').innerHTML+' <span style="color: '+this.value.toLowerCase()+';">'+this.value+'</span>').trim()); };
     });
 
-    $('bcpy').onclick = function() {
-        $('cbl').select();
-        $('cbl').setSelectionRange(0, 99999);
-        navigator.clipboard.writeText($('cbl').value);
+    $('bcpy').onclick = function() {      
+        navigator.clipboard.writeText($('cbl').innerHTML.replace(/<[^>]*>/g, ''));
     };
 
     function generateCombinations()
@@ -232,7 +232,9 @@
             coop: randItem(bn)
         };
 
-        html('rhr', '<b>'+r.heist+'</b> on '+r.diff+', '+r.tactic.toLowerCase()+' tactic<br />'+
+        const b = (s) => /^any(\s+|$)/i.test(s) ? s : '<b>'+s+'</b>';
+
+        html('rhr', '<b>'+r.heist+'</b> on '+b(r.diff)+' and '+b(r.tactic.toLowerCase())+' tactic<br />'+
             '(coop '+r.coop.toLowerCase()+' and flavors '+r.flavors.toLowerCase()+')'
         );
     }
