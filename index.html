@@ -28,29 +28,22 @@
         color: #e8e6e3;
     }
 
-    hr {
-        margin: 20px 0px;
-    }
+    a { color: #3391ff; }
+    hr { margin: 20px 0px; }
 
-    [type="text"] {
-        text-align: center;
-    }
+    [type="text"] { text-align: center; }
+    [type="checkbox"] { vertical-align: bottom; }
+    [type="checkbox"], label, a { cursor: pointer; }
 
-    [type="checkbox"] {
-        vertical-align: bottom;
-    }
-
-    [type="checkbox"], label, a {
-        cursor: pointer;
-    }
+    #fpi { width: 50px; }
     </style>
 </head>
 <body style="text-align: center;">
     <h2>Door Code Helper for PAYDAY 3</h2>
     <p>Fingerprints (e.g. 257 ou 2480) :</p>
     <div style="margin-bottom: 50px;">
-        <input type="text" id="fpi" style="width: 50px;" value="" />
-        <button onclick="generateCombinations()">Start to list codes</button>
+        <input type="text" inputmode="decimal" maxlength="4" pattern="\d{1,4}" id="fpi" value="fpi" />
+        <input type="button" value="Start to list codes" onclick="generateCombinations()" />
         <div style="margin-top: 5px;">
             <input type="checkbox" id="rnd" chec*ked="checked" />
             <label for="rnd">Randomize codes order</label>
@@ -59,7 +52,7 @@
     <div id="state"></div>
     <div id="cmrt" style="display: none;">Max remaining time : <span id="mrt"></span></div>
     <div id="pr" style="display: none;"><input type="checkbox" id="pause" /> <label for="pause">Pause</label></div>
-    <div id="result" style="font-size: 125px;"></div>
+    <div id="result" style="font-size: 100px;"></div>
     <div><span id="timeout"></span><span id="skdt"></span></div>
     <hr />
     <div id="cbs"></div>
@@ -100,12 +93,19 @@
             function() { html('cbl', (html('cbl')+' <span style="color: '+colors[this.value.toLowerCase()]+';">'+this.value+'</span>').trim()); };
     });
 
+    $('fpi').oninput = function() {
+        this.value = this.value.replace(/\D/, '');
+    }
+
     $('bcpy').onclick = function() {      
         navigator.clipboard.writeText(html('cbl').replace(/<[^>]*>/g, ''));
     };
 
     function generateCombinations()
     {
+        if(!/^\d{1,4}$/.test($("fpi").value))
+        return;
+
         css('cmrt pr', 'display', 'block');
         html('skdt', ' (<a href="javascript:void(0)" id="bsk">skip</a>)');
 
