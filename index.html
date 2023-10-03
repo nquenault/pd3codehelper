@@ -28,6 +28,10 @@
         color: #e8e6e3;
     }
 
+    hr {
+        margin: 20px 0px;
+    }
+
     [type="text"] {
         text-align: center;
     }
@@ -57,7 +61,7 @@
     <div id="pr" style="display: none;"><input type="checkbox" id="pause" /> <label for="pause">Pause</label></div>
     <div id="result" style="font-size: 125px;"></div>
     <div><span id="timeout"></span><span id="skdt"></span></div>
-    <hr style="margin: 25px 0px 10px;" />
+    <hr />
     <div id="cbs">
         <input type="button" id="cb_green" style="color: #72ff72" value="Green" />
         <input type="button" id="cb_blue" style="color: #337dff" value="Blue" />
@@ -68,6 +72,11 @@
     <div>
         <input type="text" id="cbl" value="" style="width: 200px;" />
         <input type="button" id="bcpy" value="Copy" />
+    </div>
+    <hr />
+    <div id="rh">
+        <input type="button" id="rhb" value="Random heist" /><br />
+        <span id="rhr"></span>
     </div>
 
     <script>
@@ -80,6 +89,9 @@
     function css(o, n, v) { _tA(o).forEach(so => $(so).style[n] = v); }
     function ucfirst(s) { return s[0].toUpperCase()+s.slice(1).toLowerCase(); }
     function append(o, s) { $(o).insertAdjacentHTML('beforeend', s); }
+    function rand(max, min = 0) { return Math.round(Math.random() * (max - min) + min); }
+    function randItem(v) { v = _tA(v); return v[Math.floor(Math.random() * v.length)]; }
+    function randBool() { return !!rand(1); }
 
     _tA('green blue white red reset').forEach(c => {
         $('cb_'+c).onclick = c == 'reset' ?
@@ -103,6 +115,29 @@
             .slice(0, 4)
             .filter((v, i, a) => a.indexOf(v) === i)
         ;
+
+        const getCombinations = function(arr, repeat) {
+            const result = [];
+
+            const generate = function(current, index) {
+                if(index === repeat)
+                {
+                    result.push([...current]);
+                    return;
+                }
+
+                for(let i = 0;i<arr.length;i++)
+                {
+                    current.push(arr[i]);
+                    generate(current, index + 1);
+                    current.pop();
+                }
+            };
+
+            generate([], 0);
+
+            return result;
+        }
 
         const combinations = getCombinations(fingerprints, 4);
         const filtered = combinations.filter(c => new Set(c).size === fingerprints.length);
@@ -163,29 +198,43 @@
         ht = setTimeout(dn, timeout * 1000);
     }
 
-    function getCombinations(arr, repeat)
-    {
-        const result = [];
-
-        const generate = (current, index) =>
-        {
-            if(index === repeat)
-            {
-                result.push([...current]);
-                return;
-            }
-
-            for(let i = 0;i<arr.length;i++)
-            {
-                current.push(arr[i]);
-                generate(current, index + 1);
-                current.pop();
-            }
+    $('rhb').onclick = function() {
+        const bn = [
+            '<span style="color: #ff1a1a;">Forced</span>',
+            '<span style="color: #ff1a1a;">Not allowed</span>',
+            '<span style="color: #72ff72;">Allowed</span>'
+        ];
+        const r = {
+            heist: randItem([
+                'No Rest for the Wicked',
+                'Road Rage',
+                'Dirty Ice',
+                'Rock the Cradle',
+                'Under the Surphaze',
+                'Gold & Sharke',
+                '99 Boxes',
+                'Touch the Sky',
+                //'Tutorial'
+            ]),
+            diff: randItem([
+                'Normal',
+                'Hard',
+                'Very Hard',
+                'Overkill',
+                'any difficulty'
+            ]),
+            tactic: randItem([
+                'Stealth',
+                'Loud',
+                'Any'
+            ]),
+            flavors: randItem(bn),
+            coop: randItem(bn)
         };
 
-        generate([], 0);
-
-        return result;
+        html('rhr', '<b>'+r.heist+'</b> on '+r.diff+', '+r.tactic.toLowerCase()+' tactic<br />'+
+            '(coop '+r.coop.toLowerCase()+' and flavors '+r.flavors.toLowerCase()+')'
+        );
     }
 
     </script>
