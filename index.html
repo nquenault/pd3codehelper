@@ -199,9 +199,9 @@
 
     $('rhb').onclick = function() {
         const bn = [
-            '<span style="color: #ff1a1a;">Forced</span>',
-            '<span style="color: #ff1a1a;">Not allowed</span>',
-            '<span style="color: #72ff72;">Allowed</span>'
+            '<span style="color: '+colors['red']+';">Forced</span>',
+            '<span style="color: '+colors['red']+';">Not allowed</span>',
+            '<span style="color: '+colors['green']+';">Allowed</span>'
         ];
         const r = {
             heist: randItem([
@@ -222,18 +222,18 @@
                 'Overkill',
                 'any difficulty'
             ]),
-            tactic: randItem([
+            playstyle: randItem([
                 'Stealth',
                 'Loud',
-                'Any'
+                ''
             ]),
-            flavors: randItem(bn),
-            coop: randItem(bn)
+            coop: randItem(bn),
+            flavors: randItem(bn.slice(1))
         };
 
-        const b = (s) => /^any(\s+|$)/i.test(s) ? s : '<b>'+s+'</b>';
+        const b = (s) => /^(any(\s+|$)|$)/i.test(s) ? s : '<b>'+s+'</b>';
 
-        html('rhr', '<b>'+r.heist+'</b> on '+b(r.diff)+' and '+b(r.tactic.toLowerCase())+' tactic<br />'+
+        html('rhr', '<b>'+r.heist+'</b> on '+b(r.diff)+(r.playstyle ? ' and ' : '')+b(r.playstyle)+'<br />'+
             '(coop '+r.coop.toLowerCase()+' and flavors '+r.flavors.toLowerCase()+')'
         );
     }
