@@ -40,19 +40,21 @@
 </head>
 <body style="text-align: center;">
     <h2>Door Code Helper for PAYDAY 3</h2>
-    <p>Fingerprints (e.g. 257 ou 2480) :</p>
-    <div style="margin-bottom: 50px;">
+    <p style="margin-bottom: 20px; line-height: 25px;">
+        Heist :
+        <select id="sh"></select><br />
+        Fingerprints <!--(e.g. 257 ou 2480) -->:
         <input type="text" inputmode="decimal" maxlength="4" pattern="\d{1,4}" id="fpi" />
-        <input type="button" value="Start to list codes" onclick="generateCombinations()" />
+        <input type="button" value="Start to list codes" onclick="generateCombinations()" /><br />
+        <input type="checkbox" id="rnd" chec*ked="checked" />
+        <label for="rnd">Randomize codes order</label>
         <div style="margin-top: 5px;">
-            <input type="checkbox" id="rnd" chec*ked="checked" />
-            <label for="rnd">Randomize codes order</label>
         </div>
-    </div>
+    </p>
     <div id="state"></div>
     <div id="cmrt" style="display: none;">Max remaining time : <span id="mrt"></span></div>
     <div id="pr" style="display: none;"><input type="checkbox" id="pause" /> <label for="pause">Pause</label></div>
-    <div id="result" style="font-size: 100px;"></div>
+    <div id="result" style="font-size: 75px;"></div>
     <div><span id="timeout"></span><span id="skdt"></span></div>
     <hr />
     <div id="cbs"></div>
@@ -67,15 +69,15 @@
     </div>
 
     <script>
-    const timeout = 30; // seconds, 25sec recovery
+    const enterCodeDelay = 10; // avg time span for the user enter the code (seconds)
     const colors = {
         green: '#72ff72',
-        blue: '#669fff', // #337dff <= too dark imo
+        blue: '#669fff',
         white: '#e8e6e3',
         red: '#ff1a1a',
         reset: '#988f81'
     };
-    var hi, ht;
+    var timeout, hi, ht;
 
     function $(o) { return document.getElementById(o); }
     function _tA(v) { return v instanceof Array ? v : v.split(/\s+/); }
@@ -85,6 +87,17 @@
     function append(o, s) { $(o).insertAdjacentHTML('beforeend', s); }
     function rand(max, min = 0) { return Math.round(Math.random() * (max - min) + min); }
     function randItem(v) { v = _tA(v); return v[Math.floor(Math.random() * v.length)]; }
+
+    Object.entries({
+        'N R f t W' : 10,
+        'Dirty Ice': 20,
+        'Rock the Cradle': 20,
+        'Gold & Sharke': 20,
+        'Touch the Sky': 20
+    }).forEach(item => {
+        const [hn, hr] = item;
+        append('sh', '<option value="'+hr+'">'+hn+' ('+hr+'s recovery)</option>');
+    });
 
     _tA('green blue white red reset').forEach(c => {
         append('cbs', '<input type="button" id="cb_'+c+'" style="color: '+colors[c]+';" value="'+ucfirst(c)+'" /> ');
@@ -105,6 +118,8 @@
     {
         if(!/^\d{1,4}$/.test($("fpi").value))
         return;
+
+        timeout = parseInt($('sh').value) + enterCodeDelay;
 
         css('cmrt pr', 'display', 'block');
         html('skdt', ' (<a href="javascript:void(0)" id="bsk">skip</a>)');
@@ -194,6 +209,8 @@
         $('bsk').onclick = dn;
 
         clearTimeout(ht);
+
+        if(!$('pause').checked)
         ht = setTimeout(dn, timeout * 1000);
     }
 
