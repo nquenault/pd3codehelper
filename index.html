@@ -32,8 +32,11 @@
     hr { margin: 20px 0px; }
 
     [type="text"] { text-align: center; }
-    [type="checkbox"] { vertical-align: bottom; }
     [type="checkbox"], label, a { cursor: pointer; }
+    [type="checkbox"] {
+        vertical-align: middle;
+        margin-top: 2px;
+    }
 
     #fpi { width: 50px; }
     </style>
@@ -69,7 +72,7 @@
     </div>
 
     <script>
-    const enterCodeDelay = 10; // avg time span for the user enter the code (seconds)
+    const enterCodeDelay = 5; //10; // avg time span for the user enter the code (seconds)
     const colors = {
         green: '#72ff72',
         blue: '#669fff',
