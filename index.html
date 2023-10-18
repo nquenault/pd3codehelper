@@ -157,8 +157,12 @@
         }
 
         const combinations = getCombinations(fingerprints, 4);
-        const filtered = combinations.filter(c => new Set(c).size === fingerprints.length);
+        let filtered = combinations.filter(c => new Set(c).size === fingerprints.length);
         filtered.sort($('rnd').checked ? (() => Math.random() - 0.5) : undefined);
+
+        // every time the right code is near the end, do reverse will really be effective ?
+        if($('rnd').checked)
+        filtered = filtered.reverse();
 
         showNext(filtered);
     }
