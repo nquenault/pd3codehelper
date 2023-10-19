@@ -117,6 +117,10 @@
         navigator.clipboard.writeText(html('cbl').replace(/<[^>]*>/g, ''));
     };
 
+    $('rhr').onclick = function() {
+        navigator.clipboard.writeText(html('rhr').replace(/<[^>]*>/g, ''));
+    };
+
     function generateCombinations()
     {
         if(!/^\d{1,4}$/.test($("fpi").value))
